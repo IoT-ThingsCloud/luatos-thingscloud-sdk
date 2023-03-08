@@ -6,10 +6,10 @@ local ThingsCloud = require "ThingsCloud"
 -- 创建设备，进入设备详情页的【连接】页面，复制设备证书和MQTT接入点地址。请勿泄露你的设备证书。
 -- ProjectKey
 local projectKey = ""
--- AccessToken
-local accessToken = ""
 -- MQTT 接入点，只需主机名部分
 local host = ""
+-- HTTP 接入点，为设备提供证书获取服务。设备通过 DeviceKey 获取 AccessToken
+local apiEndpoint = ""
 
 -- 设备成功连接云平台后，触发该函数
 local function onConnect(result)
@@ -24,11 +24,11 @@ end
 -- 设备接入云平台的初始化逻辑，在独立协程中完成
 sys.taskInit(function()
     -- 连接云平台，内部支持判断网络可用性、MQTT自动重连
-    -- 这里采用了设备一机一密方式，需要为每个设备固件单独写入证书。另外也支持一型一密，相同设备类型下的所有设备使用相同固件。
+    -- 这里采用了设备一型一密方式，为项目下所有设备烧录相同的固件。
     ThingsCloud.connect({
         host = host,
         projectKey = projectKey,
-        accessToken = accessToken,
+        apiEndpoint = apiEndpoint,
     })
 
     -- 注册各类事件的回调函数，在回调函数中编写所需的硬件端操作逻辑
