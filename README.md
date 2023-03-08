@@ -33,6 +33,8 @@ local ThingsCloud = require "ThingsCloud"
 - 创建项目，可选择免费版。
 - 创建设备，进入设备详情页的【连接】页面，复制设备证书和MQTT接入点地址。请勿泄露你的设备证书。
 
+![articles/2023/20230308225114_a177c9cd9a38216ca9872f51c8c31f9f.png](https://img-1300291923.cos.ap-beijing.myqcloud.com/articles/2023/20230308225114_a177c9cd9a38216ca9872f51c8c31f9f.png)
+
 ```lua
 -- 一机一密方式
 -- ProjectKey
@@ -60,3 +62,52 @@ end)
 
 
 ## 示例项目
+
+[Examples](https://github.com/IoT-ThingsCloud/luatos-thingscloud-sdk/tree/main/examples)
+
+示例正在完善中，期待你的贡献……
+
+
+### 连接云平台
+
+#### 普通连接（一机一密）
+
+#### 动态获取证书（一型一密）
+
+### 和云平台双向通信
+
+#### 属性上报
+
+#### 接收下发属性
+
+#### 获取云端属性
+
+#### 事件上报
+
+#### 接收下发命令
+
+### 场景示例
+
+#### 云平台控制 GPIO 输出 —— 网络继电器
+
+
+#### SHT30 传感器上报
+
+
+#### 云平台控制 PWM 输出 —— 电机调速
+
+
+#### UART 串口透传模组
+
+
+#### RS485 透传 —— 云平台解析 Modbus RTU
+
+
+#### 开关实时检测 —— GPIO 输入实时上报
+
+
+#### ADC 模拟量采集
+
+
+
+## 
