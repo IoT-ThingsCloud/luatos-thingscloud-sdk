@@ -1,6 +1,6 @@
 # luatos-thingscloud-sdk
 
-这是基于合宙模组 LuatOS 快速接入 ThingsCloud 物联网平台的 SDK ，可以帮你 10 分钟完成模组到云平台的双向通信。
+这里是基于合宙模组 [LuatOS](https://wiki.luatos.com/) 快速接入 [ThingsCloud](https://www.thingscloud.xyz) 物联网平台的 SDK ，帮你 10 分钟完成模组到云平台的双向通信，一键生成物联网 SaaS 后台，以及用户 App，快速落地物联网项目和产品。
 
 ## 特点
 
@@ -110,4 +110,23 @@ end)
 
 
 
-## 
+## 关于 ThingsCloud
+
+ThingsCloud 是物联网设备统一接入平台和低代码应用开发平台。可以帮助任何需要数字化改造的行业客户，在极短的时间内搭建物联网应用，并适应不断变化的发展需求。ThingsCloud 支持智能传感器、执行器、控制器、智能硬件等设备接入，支持 MQTT/HTTP/TCP/Modbus/LoRa/Zigbee/WiFi/BLE 等通信协议，实现数据采集、分析、监控，还可以灵活配置各种规则，生成项目应用 SaaS 和用户应用 App，这一切无需任何云端代码开发。
+
+- 官网：https://www.thingscloud.xyz/
+- 控制台：https://console.thingscloud.xyz/
+- 教程：https://docs.thingscloud.xyz/tutorials
+- 文档：https://docs.thingscloud.xyz
+- 设备接入：https://docs.thingscloud.xyz/guide/connect-device/
+- 博客：https://www.thingscloud.xyz/blog/
+- B站：https://space.bilibili.com/1953347444
+
+
+![articles/2023/20230112114634_afd61232cd029fca77eaebe67e12beaf.png](https://img-1300291923.cos.ap-beijing.myqcloud.com/articles/2023/20230112114634_afd61232cd029fca77eaebe67e12beaf.png)
+
+### 技术支持
+
+联系 ThingsCloud 技术支持
+
+![](https://img-1300291923.cos.ap-beijing.myqcloud.com/service/support-qrcode-wlww-1208.png)
