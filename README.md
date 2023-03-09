@@ -23,9 +23,14 @@
 
 ### 引用库文件
 
+在主程序中引入库文件：
+
 ```lua
 local ThingsCloud = require "ThingsCloud"
 ```
+
+然后将 `libs/` 下的库文件添加到项目的脚本列表中。
+
 
 ### 定义设备证书和连接参数
 
@@ -59,6 +64,12 @@ sys.taskInit(function()
     })
 end)
 ```
+
+### 烧录固件
+
+使用 Luatools 烧录底层固件和脚本，底层固件在 core/ 目录下。
+
+![articles/2023/20230309183140_8791097d56f2594bb981b675615b3842.png](https://img-1300291923.cos.ap-beijing.myqcloud.com/articles/2023/20230309183140_8791097d56f2594bb981b675615b3842.png)
 
 
 ## 示例项目
