@@ -99,7 +99,7 @@ sys.taskInit(function()
             attributes["gps_gga"] = libgnss.getGga(2)
             attributes["gps_gll"] = libgnss.getGll(2)
 
-            thingsCloud.reportAttributes(attributes)
+            ThingsCloud.reportAttributes(attributes)
 
         end
         -- 上报间隔时间为60秒

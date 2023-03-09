@@ -67,7 +67,7 @@ sys.taskInit(function()
         if ThingsCloud.isConnected() then
 
             if adc_value ~= nil then
-                thingsCloud.reportAttributes({
+                ThingsCloud.reportAttributes({
                     adc_value = adc_value
                 })
             end

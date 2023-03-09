@@ -85,7 +85,7 @@ sys.taskInit(function()
         if ThingsCloud.isConnected() then
 
             -- 上报属性，这里举例模拟一些数据
-            thingsCloud.reportAttributes({
+            ThingsCloud.reportAttributes({
                 temperature = temperature,
                 humidity = humidity
             })
