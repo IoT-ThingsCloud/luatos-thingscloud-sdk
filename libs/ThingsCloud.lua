@@ -65,8 +65,8 @@ local function mqttConnect()
     logger.info("ThingsCloud connecting...")
 
     mqttc = mqtt.create(nil, host, port, false)
-    mqttc:auth("", accessToken, projectKey)
-    mqttc:keepalive(240)
+    mqttc:auth(mobile.imei(), accessToken, projectKey)
+    mqttc:keepalive(300)
     mqttc:autoreconn(true, 3000)
     mqttc:connect()
 
@@ -116,7 +116,7 @@ local function mqttConnect()
             end
 
         elseif event == "sent" then
-            log.info("mqtt", "sent", "pkgid", data)
+            log.info("mqtt", "sent", data)
         end
     end)
 

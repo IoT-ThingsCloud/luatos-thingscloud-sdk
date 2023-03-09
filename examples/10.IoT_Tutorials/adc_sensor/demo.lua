@@ -11,39 +11,22 @@ local accessToken = ""
 -- MQTT 接入点，只需主机名部分
 local host = ""
 
+--[[
+8. Air780E内部ADC接口为12bits 外部直流分压为0-3.4V
+9. Air780E内部具有2个ADC接口，ADC0 -- AIO3 ADC1 -- AIO4 
+]]
+-- 初始化 ADC 引脚
+local ADC_PIN = 0
+adc.open(ADC_PIN)
+
 -- 设备成功连接云平台后，触发该函数
 local function onConnect(result)
     if result then
         -- 当设备连接成功后
 
         -- 例如：切换设备的LED闪烁模式，提示用户设备已正常连接。
-        -- TODO
 
-        -- 向云平台请求设备属性，例如读取配置信息。
-        -- 参数是 table 数组，用来指定希望读取的属性名称，如果数组为空，可请求所有属性
-        -- 云平台回复属性值，在事件 attributes_get_response 的回调函数中接收
-        ThingsCloud.getAttributes({})
     end
-end
-
--- 设备向云平台发送读取云端属性后，接收到云平台下发的命令时，触发该函数
--- response 是table结构的返回数据
--- responseId 作为请求标识，通常可以不使用
-local function onAttributesGetResponse(response, responseId)
-    log.info("attributes get response", json.encode(response), responseId)
-
-    -- 获得云平台回复的属性值，实现相应的自定义逻辑
-    if response.result == 1 then
-        local attributes = response.attributes or {}
-        if attributes.relay == true then
-            -- TODO 例如开灯
-
-        elseif attributes.relay == false then
-            -- TODO 例如关灯
-
-        end
-    end
-
 end
 
 -- 设备接入云平台的初始化逻辑，在独立协程中完成
@@ -58,7 +41,41 @@ sys.taskInit(function()
 
     -- 注册各类事件的回调函数，在回调函数中编写所需的硬件端操作逻辑
     ThingsCloud.on("connect", onConnect)
-    ThingsCloud.on("attributes_get_response", onAttributesGetResponse)
 
+end)
+
+-- 读取的数据全局定义
+local adc_value = nil
+-- 在独立的协程中不断读取最新的 ADC 模拟量
+sys.taskInit(function()
+
+    while true do
+        adc_value = adc.get(ADC_PIN)
+        -- 这里省去对模拟量的计算逻辑
+        -- TODO
+        
+        sys.wait(1000)
+    end
+
+end)
+
+-- 在独立的协程中上报数据到云平台，可实现固定时间间隔的上报。
+-- 上报的数据，可在其它协程中读取，例如读取串口传感器数据
+sys.taskInit(function()
+    while true do
+        -- 此处要判断是否已连接成功
+        if ThingsCloud.isConnected() then
+
+            if adc_value ~= nil then
+                thingsCloud.reportAttributes({
+                    adc_value = adc_value
+                })
+            end
+
+        end
+        -- 上报间隔时间为60秒
+        -- 使用 ThingsCloud 免费版时，数据上报频率不要低于1分钟，否则可能会被断开连接，造成设备通信不稳定
+        sys.wait(1000 * 60)
+    end
 end)
 

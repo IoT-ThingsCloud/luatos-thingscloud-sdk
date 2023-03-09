@@ -11,39 +11,47 @@ local accessToken = ""
 -- MQTT 接入点，只需主机名部分
 local host = ""
 
+-- UART 初始化
+-- 也可以用于 RS485 透传，只需要在外部电路实现 UART 转 RS485
+local UART_ID = 1
+uart.setup(UART_ID, -- 串口id
+115200, -- 波特率
+8, -- 数据位
+1 -- 停止位
+)
+
+uart.on(UART_ID, "receive", function(id, len)
+    local data = ""
+    repeat
+        -- 如果是air302, len不可信, 传1024
+        -- data = uart.read(id, 1024)
+        data = uart.read(id, len)
+        if #data > 0 then
+            log.info("uart", "receive", id, #data, data)
+            ThingsCloud.publishCustomTopic("data/stream", data)
+        end
+    until data == ""
+end)
+
+
 -- 设备成功连接云平台后，触发该函数
 local function onConnect(result)
     if result then
         -- 当设备连接成功后
 
         -- 例如：切换设备的LED闪烁模式，提示用户设备已正常连接。
-        -- TODO
 
-        -- 向云平台请求设备属性，例如读取配置信息。
-        -- 参数是 table 数组，用来指定希望读取的属性名称，如果数组为空，可请求所有属性
-        -- 云平台回复属性值，在事件 attributes_get_response 的回调函数中接收
-        ThingsCloud.getAttributes({})
+        -- 订阅自定义数据流。必须先在设备类型中创建自定义数据流，才可以使用。
+        ThingsCloud.subscribe("data/stream/set")
+
     end
 end
 
--- 设备向云平台发送读取云端属性后，接收到云平台下发的命令时，触发该函数
--- response 是table结构的返回数据
--- responseId 作为请求标识，通常可以不使用
-local function onAttributesGetResponse(response, responseId)
-    log.info("attributes get response", json.encode(response), responseId)
-
-    -- 获得云平台回复的属性值，实现相应的自定义逻辑
-    if response.result == 1 then
-        local attributes = response.attributes or {}
-        if attributes.relay == true then
-            -- TODO 例如开灯
-
-        elseif attributes.relay == false then
-            -- TODO 例如关灯
-
-        end
-    end
-
+-- 设备接收到云平台下发的属性时，触发该函数
+local function onDataSet(data)
+    log.info("recv data set", data, string.toHex(data))
+    -- 透传到 UART
+    uart.write(UART_ID, data)
 end
 
 -- 设备接入云平台的初始化逻辑，在独立协程中完成
@@ -58,7 +66,6 @@ sys.taskInit(function()
 
     -- 注册各类事件的回调函数，在回调函数中编写所需的硬件端操作逻辑
     ThingsCloud.on("connect", onConnect)
-    ThingsCloud.on("attributes_get_response", onAttributesGetResponse)
+    ThingsCloud.on("data_set", onDataSet)
 
 end)
-
