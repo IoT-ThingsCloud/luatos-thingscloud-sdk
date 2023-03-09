@@ -65,8 +65,6 @@ end)
 
 [点此进入示例目录](https://github.com/IoT-ThingsCloud/luatos-thingscloud-sdk/tree/main/examples)
 
-示例正在完善中，期待你的贡献……
-
 
 ### 连接云平台
 
@@ -99,16 +97,13 @@ end)
 #### 云平台控制 PWM 输出 —— 电机调速
 
 
-#### UART 串口透传模组
-
-
-#### RS485 透传 —— 云平台解析 Modbus RTU
-
-
-#### 开关实时检测 —— GPIO 输入实时上报
+#### UART 串口透传模组 —— 也可用于 RS485 透传
 
 
 #### ADC 模拟量采集
+
+
+更多示例代码完善中，欢迎你的建议，也欢迎提交贡献。
 
 
 
