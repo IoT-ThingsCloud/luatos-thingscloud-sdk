@@ -15,6 +15,7 @@
 
 - Air780E
 - Air780EG
+- Air700E
 - Air600E
 
 对于 Air724/820 系列模组，请移步到 [luat-thingscloud-libs](https://github.com/IoT-ThingsCloud/luat-thingscloud-libs)
