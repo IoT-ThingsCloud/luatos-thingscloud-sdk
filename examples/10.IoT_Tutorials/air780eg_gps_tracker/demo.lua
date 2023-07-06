@@ -19,7 +19,7 @@ sys.taskInit(function()
     log.info("GPS", "start")
     pm.power(pm.GPS, true)
 
-    -- 另一种方式，读取数据后调用解析函数
+    -- 方式1，读取 UART 数据后调用解析函数
     -- uart.on(2, "recv", function(id, len)
     --     while 1 do
     --         local data = uart.read(id, 1024)
@@ -31,7 +31,9 @@ sys.taskInit(function()
     --         end
     --     end
     -- end)
+    -- 方式1 结束
 
+    -- 方式2，使用 libgnss 库绑定 UART 自动读取并解析
     -- 使用自动解析
     libgnss.bind(UART_ID)
     -- 清空数据兼初始化
@@ -40,6 +42,7 @@ sys.taskInit(function()
     libgnss.debug(true)
     -- 定位成功后自动RTC
     libgnss.rtcAuto(true)
+    -- 方式2 结束
 
     sys.subscribe("GNSS_STATE", function(event, ticks)
         -- event取值有 
