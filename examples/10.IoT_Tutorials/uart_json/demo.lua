@@ -11,8 +11,7 @@ local accessToken = ""
 -- MQTT 接入点，只需主机名部分
 local host = ""
 
--- UART 初始化
--- 也可以用于 RS485 透传，只需要在外部电路实现 UART 转 RS485
+-- UART 初始化，用于和主控MCU通信，使用JSON格式
 local UART_ID = 1
 uart.setup(UART_ID, -- 串口id
 115200, -- 波特率
