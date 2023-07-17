@@ -28,7 +28,7 @@ sys.taskInit(function()
     ThingsCloud.connect({
         host = host,
         projectKey = projectKey,
-        accessToken = accessToken,
+        accessToken = accessToken
     })
 
     -- 注册各类事件的回调函数，在回调函数中编写所需的硬件端操作逻辑
@@ -36,27 +36,28 @@ sys.taskInit(function()
 
 end)
 
-
 -- 在独立的协程中上报数据到云平台，可实现固定时间间隔的上报。
 -- 上报的数据，可在其它协程中读取，例如读取串口传感器数据
-sys.taskInit(
-    function()
-        while true do
-            -- 此处要判断是否已连接成功
-            if ThingsCloud.isConnected() then
+sys.taskInit(function()
+    while true do
+        -- 此处要判断是否已连接成功
+        if ThingsCloud.isConnected() then
 
-                -- 上报属性，这里举例模拟一些数据
-                ThingsCloud.reportAttributes(
-                    {
-                        imei = mobile.imei(),
-                        iccid = mobile.iccid(),
-                        rssi = mobile.rssi()
-                    }
-                )
-            end
-            -- 上报间隔时间为60秒
-            -- 使用 ThingsCloud 免费版时，数据上报频率不要低于1分钟，否则可能会被断开连接，造成设备通信不稳定
-            sys.wait(1000 * 60)
+            -- 上报属性，这里举例模拟一些数据
+            ThingsCloud.reportAttributes({
+                imei = mobile.imei(),
+                imsi = mobile.imsi(),
+                csq = mobile.csq(),
+                iccid = mobile.iccid(),
+                rssi = mobile.rssi(),
+                rsrq = mobile.rsrq(),
+                rsrp = mobile.rsrp(),
+                snr = mobile.snr(),
+                simid = mobile.simid()
+            })
         end
+        -- 上报间隔时间为60秒
+        -- 使用 ThingsCloud 免费版时，数据上报频率不要低于1分钟，否则可能会被断开连接，造成设备通信不稳定
+        sys.wait(1000 * 60)
     end
-)
+end)
