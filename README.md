@@ -86,35 +86,67 @@ end)
 
 #### 动态获取证书（一型一密）
 
+[01.ThingsCloud_Connect/fetch_certificate](examples/01.ThingsCloud_Connect/fetch_certificate)
+
 ### 和云平台双向通信
 
 #### 属性上报
 
+[02.ThingsCloud_Communicate/attributes_report](examples/02.ThingsCloud_Communicate/attributes_report)
+
 #### 接收下发属性
+
+[02.ThingsCloud_Communicate/attributes_push](examples/02.ThingsCloud_Communicate/attributes_push)
 
 #### 获取云端属性
 
+[02.ThingsCloud_Communicate/attributes_get](examples/02.ThingsCloud_Communicate/attributes_get)
+
 #### 事件上报
+
+[02.ThingsCloud_Communicate/event_report](examples/02.ThingsCloud_Communicate/event_report)
 
 #### 接收下发命令
 
+[02.ThingsCloud_Communicate/command_send](examples/02.ThingsCloud_Communicate/command_send)
+
 #### 自定义数据流
+
+[02.ThingsCloud_Communicate/custom_data](examples/02.ThingsCloud_Communicate/custom_data)
 
 ### 综合示例
 
+#### 透传 DTU（支持二进制通信，也可用于 RS485 透传）
+
+[10.IoT_Tutorials/uart_dtu](examples/10.IoT_Tutorials/uart_dtu)
+
+#### 透传 DTU（JSON 透传）
+
+[10.IoT_Tutorials/uart_json](examples/10.IoT_Tutorials/uart_json)
+
+#### 透传 DTU（支持 GPS 模块）
+
+[10.IoT_Tutorials/air780eg_dtu_json](examples/10.IoT_Tutorials/air780eg_dtu_json)
+
+#### GPS 上报
+
+[10.IoT_Tutorials/air780eg_gps_tracker](examples/10.IoT_Tutorials/air780eg_gps_tracker)
+
 #### 云平台控制 GPIO 输出 —— 网络继电器
 
+[10.IoT_Tutorials/gpio_out](examples/10.IoT_Tutorials/gpio_out)
 
 #### SHT30 传感器上报
 
+[10.IoT_Tutorials/sht30_sensor](examples/10.IoT_Tutorials/sht30_sensor)
 
 #### 云平台控制 PWM 输出 —— 电机调速
 
-
-#### UART 串口透传模组 —— 也可用于 RS485 透传
-
+[10.IoT_Tutorials/pwm_out](examples/10.IoT_Tutorials/pwm_out)
 
 #### ADC 模拟量采集
+
+[10.IoT_Tutorials/adc_sensor](examples/10.IoT_Tutorials/adc_sensor)
 
 
 更多示例代码完善中，欢迎你的建议，也欢迎提交贡献。
