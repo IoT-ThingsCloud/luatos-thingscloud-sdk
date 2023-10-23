@@ -67,7 +67,7 @@ local function mqttConnect()
     mqttc = mqtt.create(nil, host, port, false)
     mqttc:auth(mobile.imei(), accessToken, projectKey)
     mqttc:keepalive(300)
-    mqttc:autoreconn(true, 3000)
+    mqttc:autoreconn(true, 5000)
     mqttc:connect()
 
     mqttc:on(function(mqtt_client, event, data, payload)
