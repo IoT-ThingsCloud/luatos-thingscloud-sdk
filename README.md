@@ -148,6 +148,14 @@ end)
 
 [10.IoT_Tutorials/adc_sensor](examples/10.IoT_Tutorials/adc_sensor)
 
+#### OTA 升级 - 云平台主动推送模式
+
+[10.IoT_Tutorials/ota_push](examples/10.IoT_Tutorials/ota_push)
+
+#### OTA 升级 - 设备检查新版本
+
+[10.IoT_Tutorials/ota_check](examples/10.IoT_Tutorials/ota_check)
+
 
 更多示例代码完善中，欢迎你的建议，也欢迎提交贡献。
 
