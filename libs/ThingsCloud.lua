@@ -123,6 +123,9 @@ local function mqttConnect()
 end
 
 function ThingsCloud.disconnect()
+    if not connected then
+        return
+    end
     mqttc:close()
     mqttc = nil
 end
