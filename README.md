@@ -156,6 +156,10 @@ end)
 
 [10.IoT_Tutorials/ota_check](examples/10.IoT_Tutorials/ota_check)
 
+#### OTA 升级 - 主控 MCU 通过 Air780E 检查新版本并下载固件
+
+[10.IoT_Tutorials/ota_check_uart_mcu](examples/10.IoT_Tutorials/ota_check_uart_mcu)
+
 
 更多示例代码完善中，欢迎你的建议，也欢迎提交贡献。
 
