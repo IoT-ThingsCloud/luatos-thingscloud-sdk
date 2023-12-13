@@ -41,18 +41,22 @@ uart.on(UART_ID, "receive", function(id, len)
 end)
 
 local function updateOTA(ota)
-    log.info("Download OTA firmware...")
+    log.info("OTA start download firmware...")
     local code, headers, body = http.request("GET", ota.url, nil, nil, {
         timeout = 3000
     }).wait()
-    log.info("OTA resp -> ", code, headers, body)
+    log.info("OTA response -> ", code, headers, body)
     local ret
     if code == 200 or code == 206 then
-        if body == 0 then
-            ret = 4
-        else
+        if body ~= nil then
             ret = 0
-            sys.taskInit(sendOTA2MCU, body)
+            log.info("OTA download success, start sending to MCU")
+            -- 将下载的固件二进制流，通过串口发送给MCU
+            uart.write(UART_ID, "ota_start")
+            sys.wait(1000)
+            uart.write(UART_ID, body)
+        else
+            ret = 4
         end
     elseif code == -4 then
         ret = 1
@@ -64,12 +68,6 @@ local function updateOTA(ota)
     return ret
 end
 
--- 将下载的固件二进制流，通过串口发送给MCU
-local function sendOTA2MCU(bin)
-    uart.write(UART_ID, "ota_start")
-    sys.wait(1000)
-    uart.write(UART_ID, bin)
-end
 
 -- 设备成功连接云平台后，触发该函数
 local function onConnect(result)
@@ -88,14 +86,17 @@ local function onCommandSend(command)
         -- 参考 ThingsCloud OTA 文档：https://www.thingscloud.xyz/docs/guide/maintain/ota.html
         local params = command.params or {}
         if params.upgrade then
-            local ota_dl_result = updateOTA(params)
-            -- 完成任务后，回复平台，上报OTA升级结果
-            ThingsCloud.replyCommand({
-                method = "otaDownload",
-                params = {
-                    ota_dl_result = ota_dl_result
-                }
-            })
+            sys.taskInit(function()
+                local ota_dl_result = updateOTA(params)
+                -- 完成任务后，回复平台，上报OTA升级结果
+                ThingsCloud.replyCommand({
+                    method = "otaUpgrade",
+                    params = {
+                        ota_dl_result = ota_dl_result
+                    },
+                    id = command.id
+                })
+            end)
         end
 
     elseif command.method == "restart" then
