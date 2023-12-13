@@ -58,23 +58,24 @@ local function onCommandSend(command)
         -- 参考 ThingsCloud OTA 文档：https://www.thingscloud.xyz/docs/guide/maintain/ota.html
         local params = command.params or {}
         if params.upgrade then
-            local ota_result = updateOTA(params)
-            -- 完成任务后，回复平台，上报OTA升级结果
-            ThingsCloud.replyCommand({
-                method = "otaFinished",
-                params = {
-                    ota_result = ota_result
-                }
-            })
-            if ota_result == 0 then
-                -- 升级成功
-                sys.taskInit(function()
-                    -- 等待片刻，重启模组
+
+            sys.taskInit(function()
+                local ota_result = updateOTA(params)
+                -- 完成任务后，回复平台，上报OTA升级结果
+                ThingsCloud.replyCommand({
+                    method = "otaUpgrade",
+                    params = {
+                        ota_result = ota_result
+                    },
+                    id = command.id
+                })
+                if ota_result == 0 then
+                    -- 升级成功，等待片刻，重启模组
                     sys.wait(3000)
                     ThingsCloud.disconnect()
                     rtos.reboot()
-                end)
-            end
+                end
+            end)
         end
 
     elseif command.method == "restart" then
