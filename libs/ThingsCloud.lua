@@ -25,6 +25,7 @@ local SUBSCRIBE_PREFIX = {
     GW_COMMAND_SEND = "gateway/command/send"
 }
 local EVENT_TYPES = {
+    fetch_cert = true,
     connect = true,
     attributes_report_response = true,
     attributes_get_response = true,
@@ -67,7 +68,7 @@ local function mqttConnect()
     mqttc = mqtt.create(nil, host, port, false)
     mqttc:auth(mobile.imei(), accessToken, projectKey)
     mqttc:keepalive(300)
-    mqttc:autoreconn(true, 5000)
+    mqttc:autoreconn(true, 10000)
     mqttc:connect()
 
     mqttc:on(function(mqtt_client, event, data, payload)
@@ -179,6 +180,9 @@ function fetchDeviceCert()
     if code == 200 then
         local data = json.decode(body)
         if data.result == 1 then
+            sys.taskInit(function()
+                cb("fetch_cert", true)
+            end)
             deviceInfo = data.device
             accessToken = deviceInfo.access_token
             procConnect()
@@ -190,6 +194,8 @@ function fetchDeviceCert()
         certFetchRetryCnt = certFetchRetryCnt + 1
         sys.wait(1000 * 10)
         fetchDeviceCert()
+    else
+        cb("fetch_cert", false)
     end
 end
 
