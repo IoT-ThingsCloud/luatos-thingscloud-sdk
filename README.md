@@ -171,8 +171,8 @@ ThingsCloud 是物联网设备统一接入平台和低代码应用开发平台�
 
 - 官网：https://www.thingscloud.xyz/
 - 控制台：https://console.thingscloud.xyz/
-- 教程：https://docs.thingscloud.xyz/tutorials
-- 文档：https://docs.thingscloud.xyz
+- 教程：https://docs.thingscloud.xyz/tutorials/
+- 使用文档：https://docs.thingscloud.xyz
 - 设备接入：https://docs.thingscloud.xyz/guide/connect-device/
 - 博客：https://www.thingscloud.xyz/blog/
 - B站：https://space.bilibili.com/1953347444
