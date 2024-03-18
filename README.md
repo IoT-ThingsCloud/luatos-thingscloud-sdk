@@ -20,6 +20,13 @@
 
 对于 Air724/820 系列模组，请移步到 [luat-thingscloud-libs](https://github.com/IoT-ThingsCloud/luat-thingscloud-libs)
 
+## ThingsCloud 准备工作
+
+- [快速上手控制台](https://www.thingscloud.xyz/docs/guide/quickstart/signin-console.html)
+- [如何获得设备证书？](https://www.thingscloud.xyz/docs/guide/connect-device/device-certificate.html)
+- [ThingsCloud MQTT 接入文档](https://docs.thingscloud.xyz/guide/connect-device/mqtt.html)
+
+
 ## 使用方法
 
 ### 引用库文件
