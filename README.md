@@ -95,6 +95,10 @@ end)
 
 [01.ThingsCloud_Connect/fetch_certificate](examples/01.ThingsCloud_Connect/fetch_certificate)
 
+#### 自动创建设备+动态获取证书（一型一密）
+
+[01.ThingsCloud_Connect/fetch_certificate_auto_create](examples/01.ThingsCloud_Connect/fetch_certificate_auto_create)
+
 ### 和云平台双向通信
 
 #### 属性上报
