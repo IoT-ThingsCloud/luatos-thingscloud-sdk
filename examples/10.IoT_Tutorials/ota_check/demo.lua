@@ -42,10 +42,9 @@ local function onConnect(result)
 
         -- 例如：切换设备的LED闪烁模式，提示用户设备已正常连接。
 
-        -- 连接后立即上报 OTA 新版本检查事件
-        ThingsCloud.reportEvent({
-            method = "otaCheck",
-            params = {}
+        -- 连接后立即上报当前固件版本
+        ThingsCloud.reportAttributes({
+            version = _G.VERSION
         })
 
     end
