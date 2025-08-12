@@ -2,9 +2,9 @@
 
 这里是基于合宙模组 [LuatOS](https://wiki.luatos.com/) 快速接入 [ThingsCloud](https://www.thingscloud.xyz) 物联网平台的 SDK ，帮你 10 分钟完成模组到云平台的双向通信，一键生成物联网 SaaS 后台，以及用户 App，快速落地物联网项目和产品。
 
-## 特点
+## 特性
 
-- 简单，简单，简单，填写几个参数就可以烧录运行。
+- 简单，简单，简单！填写几个参数就可以烧录运行，设备快速上线。
 - 可实现传感器数据上报和控制下发，利用各种外设发挥你的想象空间。
 - 封装了 ThingsCloud 接入协议，只需调用函数和绑定事件，就可以实现设备和云平台双向通信。
 - 支持自定义Topic，通过云平台设备类型的自定义数据流。
@@ -13,14 +13,20 @@
 
 ## 支持模组
 
-- Air780E
-- Air780EG
-- Air700E
+- Air780E 全系列（包括 Air780EG、Air780EP、Air780EPM 等）
 - Air600E
 
 对于 Air724/820 系列模组，请移步到 [luat-thingscloud-libs](https://github.com/IoT-ThingsCloud/luat-thingscloud-libs)
 
 ## ThingsCloud 准备工作
+
+- 登录 [ThingsCloud 控制台](https://www.thingscloud.xyz)。
+- 创建项目，可选择免费版。
+- 创建设备，进入设备详情页的【连接】页面，复制设备证书和MQTT接入点地址。请勿泄露你的设备证书。
+
+![](https://img-1300291923.cos.accelerate.myqcloud.com/articles/2023/20230308225114_a177c9cd9a38216ca9872f51c8c31f9f.png)
+
+更多详细介绍，可参考以下文档：
 
 - [快速上手控制台](https://www.thingscloud.xyz/docs/guide/quickstart/signin-console.html)
 - [如何获得设备证书？](https://www.thingscloud.xyz/docs/guide/connect-device/device-certificate.html)
@@ -39,14 +45,9 @@ local ThingsCloud = require "ThingsCloud"
 
 然后将 `libs/` 下的库文件添加到项目的脚本列表中。
 
+### 一机一密连接方式
 
-### 定义设备证书和连接参数
-
-- 进入 ThingsCloud 控制台：https://www.thingscloud.xyz
-- 创建项目，可选择免费版。
-- 创建设备，进入设备详情页的【连接】页面，复制设备证书和MQTT接入点地址。请勿泄露你的设备证书。
-
-![articles/2023/20230308225114_a177c9cd9a38216ca9872f51c8c31f9f.png](https://img-1300291923.cos.ap-beijing.myqcloud.com/articles/2023/20230308225114_a177c9cd9a38216ca9872f51c8c31f9f.png)
+在代码顶部定义设备连接参数：
 
 ```lua
 -- 一机一密方式
@@ -58,7 +59,8 @@ local accessToken = ""
 local host = ""
 ```
 
-### 连接 ThingsCloud
+
+在代码中连接 ThingsCloud 云平台：
 
 ```lua
 -- 设备接入云平台的初始化逻辑，在独立协程中完成
@@ -73,17 +75,51 @@ sys.taskInit(function()
 end)
 ```
 
+
+### 一型一密连接方式
+
+
+在代码顶部定义设备连接参数：
+
+```lua
+-- ProjectKey
+local projectKey = ""
+-- MQTT 接入点，只需主机名部分
+local host = ""
+-- HTTP 接入点，为设备提供证书获取服务。设备通过 DeviceKey 获取 AccessToken
+local apiEndpoint = ""
+```
+
+在代码中连接 ThingsCloud 云平台：
+
+
+```lua
+-- 设备接入云平台的初始化逻辑，在独立协程中完成
+sys.taskInit(function()
+    -- 连接云平台，支持判断网络可用性、MQTT自动重连
+    -- 这里采用了设备一型一密方式，为项目下所有设备烧录相同的固件。
+    ThingsCloud.connect({
+        host = host,
+        projectKey = projectKey,
+        apiEndpoint = apiEndpoint,
+    })
+end)
+```
+
+
+
 ### 烧录固件
 
-使用 Luatools 烧录底层固件和脚本，底层固件在 core/ 目录下。
 
-![articles/2023/20230309183140_8791097d56f2594bb981b675615b3842.png](https://img-1300291923.cos.ap-beijing.myqcloud.com/articles/2023/20230309183140_8791097d56f2594bb981b675615b3842.png)
+使用 Luatools 烧录底层固件和脚本，底层示例固件在 core/ 目录下，您可以根据需要前往合宙官网下载最新的底层固件。
+
+![](https://img-1300291923.cos.ap-beijing.myqcloud.com/articles/2023/20230309183140_8791097d56f2594bb981b675615b3842.png)
+
 
 
 ## 示例项目
 
-[点此进入示例目录](https://github.com/IoT-ThingsCloud/luatos-thingscloud-sdk/tree/main/examples)
-
+代码仓库中 examples 目录下有完整的示例代码，[点此进入示例目录](https://github.com/IoT-ThingsCloud/luatos-thingscloud-sdk/tree/main/examples)。
 
 ### 连接云平台
 
