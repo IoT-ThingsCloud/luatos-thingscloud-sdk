@@ -120,6 +120,15 @@ sys.taskInit(function()
             attributes["gps_gga"] = libgnss.getGga(2)
             attributes["gps_gll"] = libgnss.getGll(2)
 
+            local gga = libgnss.getGga(2)
+            if libgnss.isFix() and type(gga) == "table" and gga.latitude ~= 0 and gga.longitude ~= 0 then
+                -- 如果GPS定位成功，上报 ThingsCloud 位置类型属性
+                attributes["location_gps"] = {
+                    lat = gga.latitude,
+                    lng = gga.longitude
+                }
+            end
+
             ThingsCloud.reportAttributes(attributes)
 
         end
