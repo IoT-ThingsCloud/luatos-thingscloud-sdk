@@ -14,19 +14,23 @@ local deviceInfo = {}
 
 local certFetchRetryMax = 5
 local certFetchRetryCnt = 0
+local mqttConnectRetryMax = 2
 
 local SUBSCRIBE_PREFIX = {
+    ATTRIBUTES_REPONSE = "attributes/response",
     ATTRIBUTES_GET_REPONSE = "attributes/get/response/",
     ATTRIBUTES_PUSH = "attributes/push",
     COMMAND_SEND = "command/send/",
     COMMAND_REPLY_RESPONSE = "command/reply/response/",
     DATA_SET = "data/",
     GW_ATTRIBUTES_PUSH = "gateway/attributes/push",
+    GW_ATTRIBUTES_GET_RESPONSE = "gateway/attributes/get/response",
     GW_COMMAND_SEND = "gateway/command/send"
 }
 local EVENT_TYPES = {
-    fetch_cert = true,
     connect = true,
+    disconnect = true,
+    attributes_response = true,
     attributes_report_response = true,
     attributes_get_response = true,
     attributes_push = true,
@@ -34,6 +38,7 @@ local EVENT_TYPES = {
     command_reply_response = true,
     data_set = true,
     gw_attributes_push = true,
+    gw_attributes_get_response = true,
     gw_command_send = true
 }
 local CALLBACK = {}
@@ -66,9 +71,9 @@ local function mqttConnect()
     logger.info("ThingsCloud connecting...")
 
     mqttc = mqtt.create(nil, host, port, false)
-    mqttc:auth(mobile.imei(), accessToken, projectKey)
-    mqttc:keepalive(300)
-    mqttc:autoreconn(true, 10000)
+    mqttc:auth("", accessToken, projectKey)
+    mqttc:keepalive(180)
+    mqttc:autoreconn(true, 1000 * 10)
     mqttc:connect()
 
     mqttc:on(function(mqtt_client, event, data, payload)
@@ -78,6 +83,7 @@ local function mqttConnect()
             logger.info("ThingsCloud connected")
             cb("connect", true)
             sys.publish("mqtt_conack")
+            ThingsCloud.subscribe("attributes/response")
             ThingsCloud.subscribe("attributes/push")
             ThingsCloud.subscribe("attributes/get/response/+")
             ThingsCloud.subscribe("command/send/+")
@@ -85,7 +91,10 @@ local function mqttConnect()
 
         elseif event == "recv" then
             logger.info("receive from cloud", data or nil, payload or "nil")
-            if (data:sub(1, SUBSCRIBE_PREFIX.ATTRIBUTES_GET_REPONSE:len()) == SUBSCRIBE_PREFIX.ATTRIBUTES_GET_REPONSE) then
+            if (data:sub(1, SUBSCRIBE_PREFIX.ATTRIBUTES_REPONSE:len()) == SUBSCRIBE_PREFIX.ATTRIBUTES_REPONSE) then
+                local response = json.decode(payload)
+                cb("attributes_response", response)
+            elseif (data:sub(1, SUBSCRIBE_PREFIX.ATTRIBUTES_GET_REPONSE:len()) == SUBSCRIBE_PREFIX.ATTRIBUTES_GET_REPONSE) then
                 local response = json.decode(payload)
                 local responseId = tonumber(data:sub(SUBSCRIBE_PREFIX.ATTRIBUTES_GET_REPONSE:len() + 1))
                 cb("attributes_get_response", response, responseId)
@@ -111,22 +120,43 @@ local function mqttConnect()
             elseif (data == SUBSCRIBE_PREFIX.GW_ATTRIBUTES_PUSH) then
                 local response = json.decode(payload)
                 cb("gw_attributes_push", response)
+            elseif (data == SUBSCRIBE_PREFIX.GW_ATTRIBUTES_GET_RESPONSE) then
+                local response = json.decode(payload)
+                cb("gw_attributes_get_response", response)
             elseif (data == SUBSCRIBE_PREFIX.GW_COMMAND_SEND) then
                 local response = json.decode(payload)
                 cb("gw_command_send", response)
             end
 
         elseif event == "sent" then
-            log.info("mqtt", "sent", data)
+            log.info("mqtt", "sent", "pkgid", data)
+
+        elseif event == "disconnect" then
+            log.info("mqtt", "disconnect")
+            connected = false
+            cb("disconnect")
+        
+        elseif event == "error" then
+            log.info("mqtt", "error", data)
+            if data == "connect" then
+                retryCount = retryCount + 1
+                logger.info(string.format("mqtt reconnecting[%d/%d]...", retryCount, mqttConnectRetryMax))
+                if (retryCount > mqttConnectRetryMax) then
+                    -- connect fail callback
+                    connected = false
+                    cb("connect", false)
+                end
+            end
         end
     end)
 
 end
 
 function ThingsCloud.disconnect()
-    if not connected then
+    if mqttc == nil then
         return
     end
+    connected = false
     mqttc:close()
     mqttc = nil
 end
@@ -164,7 +194,10 @@ function ThingsCloud.connect(param)
 end
 
 -- 一型一密，使用IMEI作为DeviceKey，领取设备证书AccessToken
-function fetchDeviceCert()
+function fetchDeviceCert(is_retry)
+    if is_retry == nil then
+        certFetchRetryCnt = 0
+    end
     local headers = {}
     headers["Project-Key"] = projectKey
     headers["Content-Type"] = "application/json"
@@ -193,7 +226,8 @@ function fetchDeviceCert()
         -- 重试
         certFetchRetryCnt = certFetchRetryCnt + 1
         sys.wait(1000 * 10)
-        fetchDeviceCert()
+        logger.info(string.format("cert fetch retry[%d/%d]...", certFetchRetryCnt, certFetchRetryMax))
+        fetchDeviceCert(true)
     else
         cb("fetch_cert", false)
     end
@@ -204,6 +238,9 @@ function procConnect()
     sys.waitUntil("mqtt_conack")
     sys.taskInit(function()
         while true do
+            if mqttc == nil or not connected then
+                break
+            end
             if #QUEUE.PUBLISH > 0 then
                 local item = table.remove(QUEUE.PUBLISH, 1)
                 logger.info("publish", item.topic, item.data)
@@ -275,11 +312,24 @@ function ThingsCloud.publishCustomTopic(topic, payload, options)
     insertPublishQueue(topic, payload)
 end
 
-function getAccessToken()
+function ThingsCloud.gatewayGetAttributes(device, attrsList)
+    local data = {
+        device = device,
+        get = {
+            keys = attrsList or {}
+        }
+    }
+    if #attrsList == 0 then
+        data.get = {}
+    end
+    insertPublishQueue("gateway/attributes/get", json.encode(data))
+end
+
+function ThingsCloud.getAccessToken()
     return accessToken
 end
 
-function isGateway()
+function ThingsCloud.isGateway()
     if deviceInfo.conn_type == "3" then
         return true
     end
