@@ -14,7 +14,7 @@ local deviceInfo = {}
 
 local certFetchRetryMax = 5
 local certFetchRetryCnt = 0
-local mqttConnectRetryMax = 2
+local mqttConnectRetryMax = 5
 
 local SUBSCRIBE_PREFIX = {
     ATTRIBUTES_REPONSE = "attributes/response",
@@ -28,6 +28,7 @@ local SUBSCRIBE_PREFIX = {
     GW_COMMAND_SEND = "gateway/command/send"
 }
 local EVENT_TYPES = {
+    fetch_cert = true,
     connect = true,
     disconnect = true,
     attributes_response = true,
@@ -133,19 +134,25 @@ local function mqttConnect()
 
         elseif event == "disconnect" then
             log.info("mqtt", "disconnect")
-            connected = false
-            cb("disconnect")
+            -- 只有连接曾经成功过，才触发应用层断开回调
+            -- 首次连接失败时的 disconnect 是连接建立失败的副产品，不应重启
+            if connected then
+                connected = false
+                cb("disconnect")
+            end
         
         elseif event == "error" then
             log.info("mqtt", "error", data)
-            if data == "connect" then
+            -- TCP连接失败 或 MQTT CONACK被拒绝/超时 都应计数
+            if data == "connect" or data == "conack" then
                 retryCount = retryCount + 1
-                logger.info(string.format("mqtt reconnecting[%d/%d]...", retryCount, mqttConnectRetryMax))
                 if (retryCount > mqttConnectRetryMax) then
                     -- connect fail callback
                     connected = false
                     cb("connect", false)
+                    return
                 end
+                logger.info(string.format("mqtt reconnecting[%d/%d]...", retryCount, mqttConnectRetryMax))
             end
         end
     end)
@@ -203,16 +210,16 @@ function fetchDeviceCert(is_retry)
     headers["Content-Type"] = "application/json"
     local url = apiEndpoint .. "/device/v1/certificate"
     local deviceKey = mobile.imei()
-    local code, headers, body = http.request("POST", url, headers, json.encode({
+    local code, resp_headers, body = http.request("POST", url, headers, json.encode({
         device_key = deviceKey,
         type_key = typeKey
     }), {
         timeout = 5000
     }).wait()
-    log.info("http fetch cert:", deviceKey, code, headers, body)
-    if code == 200 then
-        local data = json.decode(body)
-        if data.result == 1 then
+    log.info("http fetch cert:", deviceKey, code, body)
+    if code == 200 and body ~= nil and body ~= "" then
+        local ok, data = pcall(json.decode, body)
+        if ok and type(data) == "table" and data.result == 1 then
             sys.taskInit(function()
                 cb("fetch_cert", true)
             end)
